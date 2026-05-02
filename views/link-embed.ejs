@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+
+    body { display: flex; flex-direction: column; background: var(--bg-color-darker); }
+
+    .embed-bar {
+      flex-shrink: 0;
+      height: 52px;
+      background: var(--bg-color-medium);
+      border-bottom: 1px solid var(--zero-two-fade);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+
+    .embed-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .embed-brand {
+      font-family: 'Libre Baskerville', serif;
+      color: var(--accent-color);
+      font-weight: 700;
+      font-size: 0.95em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: color 0.2s;
+    }
+
+    .embed-brand:hover { color: var(--accent-hover-color); }
+
+    .embed-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--zero-two-fade);
+    }
+
+    .embed-title {
+      font-size: 0.88em;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .embed-open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.25);
+      border-radius: 7px;
+      color: var(--accent-color);
+      font-size: 0.82em;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .embed-open-btn:hover {
+      background: rgba(212,175,55,0.18);
+      border-color: var(--accent-color);
+      color: var(--accent-hover-color);
+    }
+
+    .embed-frame {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="embed-bar">
+    <div class="embed-bar-left">
+      <span class="embed-brand">
+        <i class="fa-solid fa-link"></i><%= settings.siteName %>
+      </span>
+      <div class="embed-divider"></div>
+      <span class="embed-title"><%= link.title %></span>
+    </div>
+    <a class="embed-open-btn" href="<%= link.url %>" target="_blank" rel="noopener noreferrer">
+      <i class="fa-solid fa-up-right-from-square"></i> Open in new tab
+    </a>
+  </div>
+  <iframe
+    src="<%= link.url %>"
+    class="embed-frame"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen"
+    sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+    loading="lazy"></iframe>
+</body>
+</html>

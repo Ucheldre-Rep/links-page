@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - <%= settings.siteName %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Lato:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color-darker: #0a0a0f;
+      --bg-color-dark: #111118;
+      --bg-color-medium: #1a1a24;
+      --bg-color-light: #252530;
+      --text-color: #e8e6e3;
+      --text-muted: #a8a6a3;
+      --accent-color: #d4af37;
+      --accent-hover-color: #f0c86e;
+      --accent-dark-hover: #b8941f;
+      --accent-secondary: #8b2f39;
+      --zero-one-fade: rgba(255, 255, 255, 0.05);
+      --zero-two-fade: rgba(255, 255, 255, 0.1);
+      --zero-three-fade: rgba(255, 255, 255, 0.15);
+      --spotlight-color: rgba(212, 175, 55, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--bg-color-dark);
+      color: var(--text-color);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    .admin-layout { display: flex; min-height: 100vh; }
+
+    .admin-sidebar {
+      width: 280px;
+      background: var(--bg-color-medium);
+      border-right: 1px solid var(--zero-two-fade);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+
+    .admin-sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid var(--zero-two-fade);
+      background: var(--bg-color-darker);
+      background-image: radial-gradient(400px 200px at 50% 0%, var(--spotlight-color), rgba(0,0,0,0) 70%);
+      text-align: center;
+    }
+
+    .admin-sidebar-header h2 {
+      font-family: 'Libre Baskerville', serif;
+      color: var(--accent-color);
+      font-size: 1.25em;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .admin-sidebar-header p { font-size: 0.82em; color: var(--text-muted); }
+
+    .admin-sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+
+    .admin-nav-section { margin-bottom: 25px; }
+
+    .admin-nav-section-title {
+      font-size: 0.72em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      padding: 0 20px;
+      margin-bottom: 10px;
+    }
+
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      font-weight: 500;
+      font-size: 0.95em;
+    }
+
+    .admin-nav-item:hover {
+      background: var(--bg-color-light);
+      color: var(--accent-hover-color);
+      border-left-color: var(--accent-color);
+    }
+
+    .admin-nav-item.active {
+      background: var(--bg-color-light);
+      color: var(--accent-color);
+      border-left-color: var(--accent-color);
+      box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.08);
+    }
+
+    .admin-nav-item i { width: 18px; text-align: center; font-size: 0.9em; opacity: 0.85; }
+
+    .admin-mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px; left: 15px;
+      z-index: 1000;
+      background: var(--accent-color);
+      color: var(--bg-color-darker);
+      border: none;
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      transition: all 0.3s;
+    }
+
+    .admin-mobile-menu-toggle:hover { background: var(--accent-hover-color); transform: scale(1.05); }
+
+    .admin-sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 99;
+    }
+
+    .admin-main { flex: 1; margin-left: 280px; display: flex; flex-direction: column; min-height: 100vh; }
+
+    .admin-topbar {
+      background: var(--bg-color-medium);
+      border-bottom: 1px solid var(--zero-two-fade);
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0; z-index: 90;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .admin-topbar-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.6em;
+      color: var(--text-color);
+      font-weight: 700;
+    }
+
+    .admin-topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+    .admin-content {
+      flex: 1;
+      padding: 35px 40px;
+      background: linear-gradient(135deg, var(--bg-color-dark) 0%, var(--bg-color-medium) 100%);
+      background-attachment: fixed;
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-dark-hover));
+      color: var(--bg-color-darker);
+      border: none;
+      padding: 11px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+      font-family: 'Lato', sans-serif;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transform: translate(-50%,-50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before { width: 300px; height: 300px; }
+
+    .btn:hover {
+      background: linear-gradient(135deg, var(--accent-hover-color), var(--accent-color));
+      box-shadow: 0 6px 22px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+      color: var(--bg-color-darker);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--accent-secondary), #6d2530);
+      color: white;
+      box-shadow: 0 4px 15px rgba(139, 47, 57, 0.25);
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #a83f4a, var(--accent-secondary));
+      box-shadow: 0 6px 20px rgba(139, 47, 57, 0.35);
+      color: white;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--zero-two-fade);
+      color: var(--text-muted);
+      box-shadow: none;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-color-light);
+      border-color: var(--zero-three-fade);
+      color: var(--text-color);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 2px solid var(--accent-secondary);
+      color: var(--text-color);
+      box-shadow: none;
+      text-transform: none;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .btn-logout:hover {
+      background: var(--accent-secondary);
+      color: white;
+      border-color: var(--accent-secondary);
+      box-shadow: 0 4px 15px rgba(139, 47, 57, 0.25);
+      transform: none;
+    }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--bg-color-light) 0%, var(--bg-color-medium) 100%);
+      border: 1px solid var(--zero-two-fade);
+      border-radius: 12px;
+      padding: 22px 20px;
+      text-align: center;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent-color);
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .stat-card .stat-num {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 2.2em;
+      font-weight: 700;
+      color: var(--accent-color);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.78em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar-search {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      background: var(--bg-color-darker);
+      border: 2px solid var(--zero-two-fade);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+
+    .toolbar-search:focus-within {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+    }
+
+    .toolbar-search i { padding: 0 14px; color: var(--text-muted); font-size: 0.9rem; }
+
+    .toolbar-search input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      padding: 12px 12px 12px 0;
+      color: var(--text-color);
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+    }
+
+    .toolbar-search input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+    .toolbar-select {
+      background: var(--bg-color-darker);
+      border: 2px solid var(--zero-two-fade);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text-color);
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.25s;
+    }
+
+    .toolbar-select:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+    }
+
+    .toolbar-select option { background: var(--bg-color-darker); }
+
+    /* Link cards */
+    .links-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .link-card {
+      background: linear-gradient(135deg, var(--bg-color-dark) 0%, rgba(26,26,36,0.7) 100%);
+      border: 2px solid var(--zero-two-fade);
+      border-left: 4px solid var(--accent-color);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .link-card:hover {
+      border-color: var(--accent-color);
+      border-left-color: var(--accent-color);
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.14);
+      transform: translateX(3px);
+    }
+
+    .link-card.disabled-card { opacity: 0.5; border-left-color: #555; }
+    .link-card.disabled-card:hover { border-left-color: #777; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .link-icon-wrap {
+      width: 46px; height: 46px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: var(--bg-color-light);
+      border: 1px solid var(--zero-two-fade);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-color);
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .link-card:hover .link-icon-wrap {
+      background: rgba(212, 175, 55, 0.08);
+      border-color: var(--accent-color);
+    }
+
+    .link-info { flex: 1; min-width: 0; }
+
+    .link-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .link-title { font-weight: 700; font-size: 1em; color: var(--text-color); }
+
+    .type-badge {
+      font-size: 0.67em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-redirect  { background: rgba(100,160,255,0.15); color: #78b0ff; border: 1px solid rgba(100,160,255,0.25); }
+    .badge-permanent { background: rgba(80,200,120,0.15);  color: #6edc96; border: 1px solid rgba(80,200,120,0.25); }
+    .badge-embed     { background: rgba(212,175,55,0.12);  color: var(--accent-color); border: 1px solid rgba(212,175,55,0.25); }
+    .badge-info      { background: rgba(180,130,255,0.12); color: #c4a0ff; border: 1px solid rgba(180,130,255,0.25); }
+    .badge-disabled  { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--zero-two-fade); }
+
+    .link-slug-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84em;
+      color: var(--text-muted);
+    }
+
+    .slug-code {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-color-light);
+      border: 1px solid var(--zero-two-fade);
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: var(--accent-color);
+      font-size: 0.95em;
+      user-select: all;
+    }
+
+    .link-url-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+
+    .link-clicks { text-align: center; flex-shrink: 0; min-width: 52px; }
+
+    .link-clicks .click-num {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.3em;
+      color: var(--accent-color);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .link-clicks .click-label {
+      font-size: 0.7em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Icon buttons */
+    .icon-btn {
+      background: var(--bg-color-medium);
+      border: 2px solid var(--zero-two-fade);
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+      color: var(--text-muted);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent-color);
+      color: var(--bg-color-darker);
+      border-color: var(--accent-color);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .icon-btn.danger:hover {
+      background: var(--accent-secondary);
+      border-color: var(--accent-secondary);
+      color: white;
+      box-shadow: 0 3px 10px rgba(139, 47, 57, 0.3);
+    }
+
+    .icon-btn.success { color: #4caf50; }
+
+    .card-actions { display: flex; gap: 7px; flex-shrink: 0; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 70px 40px; color: var(--text-muted); }
+    .empty-state i { color: var(--text-muted); opacity: 0.4; margin-bottom: 16px; display: block; font-size: 3rem; }
+    .empty-state h3 { font-family: 'Libre Baskerville', serif; color: var(--text-muted); margin-bottom: 10px; }
+    .empty-state p  { font-size: 0.9em; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--bg-color-medium);
+      border: 2px solid var(--zero-two-fade);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 620px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 80px rgba(212,175,55,0.05);
+      animation: modalIn 0.25s ease-out;
+    }
+
+    .modal-box.modal-sm { max-width: 420px; }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(-10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--zero-two-fade);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-color-darker);
+      background-image: radial-gradient(500px 200px at 50% 0%, var(--spotlight-color), rgba(0,0,0,0) 70%);
+      border-radius: 14px 14px 0 0;
+    }
+
+    .modal-header h3 {
+      font-family: 'Libre Baskerville', serif;
+      color: var(--accent-color);
+      font-size: 1.35em;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+      padding: 0 4px;
+    }
+
+    .modal-close:hover { color: var(--accent-hover-color); }
+
+    .modal-body { padding: 28px; }
+
+    .modal-footer {
+      padding: 18px 28px;
+      border-top: 1px solid var(--zero-two-fade);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Forms */
+    .form-group { margin-bottom: 20px; }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 0.88em;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .form-group label .req { color: var(--accent-secondary); margin-left: 3px; }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      background: var(--bg-color-darker);
+      border: 2px solid var(--zero-two-fade);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text-color);
+      font-family: 'Lato', sans-serif;
+      transition: all 0.25s;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .form-group select option { background: var(--bg-color-darker); }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px rgba(212,175,55,0.15), inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    .input-prefix-group { display: flex; align-items: stretch; }
+
+    .input-prefix {
+      padding: 12px 14px;
+      background: var(--bg-color-light);
+      border: 2px solid var(--zero-two-fade);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix + input { border-radius: 0 8px 8px 0; }
+
+    .slug-status {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 0.8em;
+      font-weight: 600;
+    }
+
+    .slug-status.visible { display: flex; }
+
+    .slug-status.available { color: #4caf50; }
+    .slug-status.unavailable { color: #ef5350; }
+    .slug-status.checking { color: var(--text-muted); }
+
+    .slug-status i { font-size: 0.95em; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .help-text {
+      font-size: 0.78em;
+      color: var(--text-muted);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .google-notice {
+      display: none;
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: rgba(66, 133, 244, 0.08);
+      border: 1px solid rgba(66, 133, 244, 0.2);
+      border-radius: 8px;
+      font-size: 0.82em;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .google-notice.visible { display: block; }
+
+    .google-notice-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #8ab4f8;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95em;
+    }
+
+    .google-notice .toggle-item { margin-top: 6px; }
+
+    .google-notice .stripped-preview {
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: var(--bg-color-darker);
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.88em;
+      color: var(--accent-color);
+      word-break: break-all;
+      display: none;
+    }
+
+    .google-notice .stripped-preview.visible { display: block; }
+
+    .icon-input-group { display: flex; gap: 10px; align-items: center; }
+    .icon-input-group input { flex: 1; }
+
+    .icon-preview-box {
+      width: 46px; height: 46px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: var(--bg-color-darker);
+      border: 2px solid var(--zero-two-fade);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-color);
+      font-size: 1.2rem;
+    }
+
+    .toggle-row { display: flex; gap: 24px; flex-wrap: wrap; }
+
+    .toggle-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+
+    .toggle-item input[type="checkbox"] {
+      width: 40px; height: 22px;
+      appearance: none;
+      background: var(--bg-color-light);
+      border: 2px solid var(--zero-two-fade);
+      border-radius: 11px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s;
+      padding: 0;
+      box-shadow: none;
+    }
+
+    .toggle-item input[type="checkbox"]::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      top: 2px; left: 2px;
+      transition: all 0.25s;
+    }
+
+    .toggle-item input[type="checkbox"]:checked {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--accent-color);
+    }
+
+    .toggle-item input[type="checkbox"]:checked::after {
+      background: var(--accent-color);
+      left: 20px;
+    }
+
+    .toggle-item label {
+      font-size: 0.88em;
+      color: var(--text-color);
+      cursor: pointer;
+      margin: 0;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+
+    .type-help {
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: var(--bg-color-darker);
+      border: 1px solid var(--zero-two-fade);
+      border-radius: 6px;
+      font-size: 0.82em;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .type-help strong { color: var(--accent-color); }
+
+    /* Alert */
+    .alert {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 16px 24px;
+      border-radius: 12px;
+      animation: slideDown 0.3s ease-out;
+      border: 2px solid;
+      z-index: 9999;
+      min-width: 300px;
+      max-width: 500px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      font-weight: 500;
+      font-size: 0.92em;
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, #2a2520, #332815);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .alert-error {
+      background: linear-gradient(135deg, #2a1a1c, #3d1f23);
+      color: #f5a3ad;
+      border-color: var(--accent-secondary);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Settings panel */
+    .settings-panel {
+      display: none;
+      background: linear-gradient(135deg, var(--bg-color-light) 0%, var(--bg-color-medium) 100%);
+      border: 2px solid var(--zero-two-fade);
+      border-radius: 15px;
+      padding: 32px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      background-image: radial-gradient(600px 300px at 50% 0%, var(--spotlight-color), rgba(0,0,0,0) 70%);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .settings-panel.active { display: block; }
+
+    .settings-panel h3 {
+      font-family: 'Libre Baskerville', serif;
+      color: var(--accent-color);
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 28px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--zero-two-fade);
+    }
+
+    .color-input-group { display: flex; gap: 10px; align-items: center; }
+
+    .color-input-group input[type="color"] {
+      width: 52px; height: 44px;
+      padding: 3px;
+      border-radius: 8px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .color-input-group input[type="text"] { flex: 1; }
+
+    #noResults {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .admin-sidebar { transform: translateX(-100%); z-index: 200; }
+      .admin-sidebar.mobile-open { transform: translateX(0); }
+      .admin-sidebar-overlay.active { display: block; }
+      .admin-main { margin-left: 0; }
+      .admin-mobile-menu-toggle { display: flex; align-items: center; justify-content: center; }
+      .admin-topbar { padding: 14px 20px 14px 72px; }
+      .admin-content { padding: 20px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .link-url-text { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <button class="admin-mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="admin-sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <h2><i class="fa-solid fa-link" style="margin-right:8px;"></i><%= settings.siteName %></h2>
+        <p>Link Management</p>
+      </div>
+      <nav class="admin-sidebar-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Links</div>
+          <a class="admin-nav-item active" id="navLinks" onclick="showPanel('links', event)">
+            <i class="fa-solid fa-link"></i> All Links
+          </a>
+        </div>
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">System</div>
+          <a class="admin-nav-item" id="navSettings" onclick="showPanel('settings', event)">
+            <i class="fa-solid fa-gear"></i> Site Settings
+          </a>
+          <a class="admin-nav-item" href="https://beta.ucheldrerep.co.uk/admin" target="_blank">
+            <i class="fa-solid fa-server"></i> Main Site Admin (Beta Site)
+          </a>
+          <a class="admin-nav-item" href="/" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> View Site
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title" id="topbarTitle">All Links</h1>
+        <div class="admin-topbar-actions">
+          <button class="btn" id="addLinkBtn" onclick="openCreateModal()">
+            <i class="fa-solid fa-plus"></i> New Link
+          </button>
+          <form action="/admin/logout" method="POST" style="margin:0;">
+            <button type="submit" class="btn btn-logout">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+          </form>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div id="alertContainer"></div>
+
+        <!-- Links panel -->
+        <div id="panelLinks">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-num" id="statTotal"><%= links.length %></div>
+              <div class="stat-label">Total Links</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="statActive"><%= links.filter(l => l.enabled).length %></div>
+              <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="statDisabled"><%= links.filter(l => !l.enabled).length %></div>
+              <div class="stat-label">Disabled</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="statClicks"><%= links.reduce((s,l) => s + (l.clicks||0), 0) %></div>
+              <div class="stat-label">Total Clicks</div>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchInput" placeholder="Search by title, slug or URL…">
+            </div>
+            <select class="toolbar-select" id="filterType">
+              <option value="">All Types</option>
+              <option value="redirect">Redirect (302)</option>
+              <option value="permanent-redirect">Permanent Redirect (301)</option>
+              <option value="embed">Embed</option>
+              <option value="info">Info Page</option>
+            </select>
+          </div>
+
+          <div class="links-list" id="linksList">
+            <% if (links.length === 0) { %>
+            <div class="empty-state">
+              <i class="fa-solid fa-link-slash"></i>
+              <h3>No links yet</h3>
+              <p>Click <strong style="color: var(--accent-color);">New Link</strong> to create your first link.</p>
+            </div>
+            <% } else { %>
+              <% links.sort((a,b) => (a.sortOrder||0)-(b.sortOrder||0)).forEach(link => { %>
+              <div class="link-card<%= link.enabled ? '' : ' disabled-card' %>"
+                   data-id="<%= link.id %>"
+                   data-title="<%= link.title.toLowerCase() %>"
+                   data-slug="<%= link.slug.toLowerCase() %>"
+                   data-url="<%= link.url.toLowerCase() %>"
+                   data-type="<%= link.type %>">
+
+                <div class="link-icon-wrap">
+                  <i class="<%= link.icon || 'fa-solid fa-link' %>"></i>
+                </div>
+
+                <div class="link-info">
+                  <div class="link-title-row">
+                    <span class="link-title"><%= link.title %></span>
+                    <span class="type-badge <%=
+                      link.type === 'redirect' ? 'badge-redirect' :
+                      link.type === 'permanent-redirect' ? 'badge-permanent' :
+                      link.type === 'embed' ? 'badge-embed' : 'badge-info' %>">
+                      <%=
+                        link.type === 'redirect' ? 'Redirect' :
+                        link.type === 'permanent-redirect' ? '301 Permanent' :
+                        link.type === 'embed' ? 'Embed' : 'Info Page' %>
+                    </span>
+                    <% if (!link.enabled) { %><span class="type-badge badge-disabled">Disabled</span><% } %>
+                  </div>
+                  <div class="link-slug-row">
+                    <span class="slug-code">/<%= link.slug %></span>
+                    <i class="fa-solid fa-arrow-right" style="font-size:0.75em; opacity:0.4;"></i>
+                    <span class="link-url-text" title="<%= link.url %>"><%= link.url %></span>
+                  </div>
+                </div>
+
+                <div class="link-clicks">
+                  <div class="click-num"><%= link.clicks || 0 %></div>
+                  <div class="click-label">clicks</div>
+                </div>
+
+                <div class="card-actions">
+                  <button class="icon-btn" data-id="<%= link.id %>" data-action="toggle" title="<%= link.enabled ? 'Disable' : 'Enable' %>">
+                    <i class="fa-solid fa-<%= link.enabled ? 'eye' : 'eye-slash' %>"></i>
+                  </button>
+                  <button class="icon-btn" data-id="<%= link.id %>" data-action="copy" data-slug="<%= link.slug %>" title="Copy URL" type="button">
+                    <i class="fa-solid fa-copy"></i>
+                  </button>
+                  <button class="icon-btn" data-id="<%= link.id %>" data-action="edit" title="Edit" type="button">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <a class="icon-btn" href="/<%= link.slug %>" target="_blank" title="Open link">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                  <button class="icon-btn danger" data-id="<%= link.id %>" data-action="delete" title="Delete" type="button">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <% }) %>
+            <% } %>
+          </div>
+
+          <div id="noResults">
+            <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; opacity:0.35; display:block; margin-bottom:10px;"></i>
+            No links match your search.
+          </div>
+        </div>
+
+        <!-- Settings panel -->
+        <div class="settings-panel" id="panelSettings">
+          <h3><i class="fa-solid fa-gear" style="margin-right:10px;"></i>Site Settings</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Site Name</label>
+              <input type="text" id="settingSiteName" value="<%= settings.siteName %>">
+            </div>
+            <div class="form-group">
+              <label>Site Description</label>
+              <input type="text" id="settingDescription" value="<%= settings.siteDescription %>">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Brand Colour</label>
+            <div class="color-input-group">
+              <input type="color" id="settingColour" value="<%= settings.brandColour || '#d4af37' %>">
+              <input type="text" id="settingColourText" value="<%= settings.brandColour || '#d4af37' %>">
+            </div>
+            <p class="help-text">This colour is used for accents on the public-facing site.</p>
+          </div>
+          <div style="margin-top: 28px; padding-top: 20px; border-top: 2px solid var(--zero-two-fade); display: flex; gap: 14px;">
+            <button class="btn" onclick="saveSettings()">
+              <i class="fa-solid fa-floppy-disk"></i> Save Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create / Edit Modal -->
+  <div class="modal-overlay" id="linkModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle"><i class="fa-solid fa-plus" style="margin-right:8px;"></i>New Link</h3>
+        <button class="modal-close" onclick="closeModal('linkModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="linkId">
+
+        <div class="form-group">
+          <label>Title <span class="req">*</span></label>
+          <input type="text" id="linkTitle" placeholder="e.g. Audition Form">
+          <p class="help-text">A friendly name shown on the homepage and info pages.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Short URL (Slug) <span class="req">*</span></label>
+          <div class="input-prefix-group">
+            <span class="input-prefix">link.ucheldrerep.co.uk/</span>
+            <input type="text" id="linkSlug" placeholder="e.g. audition-form">
+          </div>
+          <p class="help-text">Lowercase letters, numbers and hyphens only.</p>
+          <div class="slug-status" id="slugStatus">
+            <i id="slugStatusIcon"></i>
+            <span id="slugStatusText"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Destination URL <span class="req">*</span></label>
+          <input type="url" id="linkUrl" placeholder="https://docs.google.com/forms/d/e/…">
+          <p class="help-text">The full URL where visitors will be sent.</p>
+          <div class="google-notice" id="googleNotice">
+            <div class="google-notice-header">
+              <i class="fa-brands fa-google"></i> Google link detected
+            </div>
+            <span>Google sharing links often include tracking parameters (<code style="color:#8ab4f8;">usp</code>, <code style="color:#8ab4f8;">ouid</code>) that can cause issues when the user isn't signed in. It's recommend to strip these parameters for a smoother experience.</span>
+            <label class="toggle-item">
+              <input type="checkbox" id="stripGoogleParams" checked>
+              <label for="stripGoogleParams">Strip tracking parameters</label>
+            </label>
+            <div class="stripped-preview" id="strippedPreview"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Link Type <span class="req">*</span></label>
+          <select id="linkType">
+            <option value="redirect">Redirect — Sends visitors straight to the destination</option>
+            <option value="permanent-redirect">Permanent Redirect — Cached by browsers (use for stable links)</option>
+            <option value="embed">Embed — Shows the destination inside your page (iframe)</option>
+            <option value="info">Info Page — Shows a description with a "Go to Link" button</option>
+          </select>
+          <div class="type-help" id="typeHelp">
+            <strong>Redirect</strong> is the most common choice — visitors are immediately forwarded.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="linkDescription" placeholder="Optional description shown on info and embed pages"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Icon</label>
+          <div class="icon-input-group">
+            <input type="text" id="linkIcon" value="fa-solid fa-link" placeholder="e.g. fa-solid fa-file-lines">
+            <div class="icon-preview-box" id="iconPreview"><i class="fa-solid fa-link"></i></div>
+          </div>
+          <p class="help-text">
+            Font Awesome class. Common:
+            <code style="color:var(--accent-color);">fa-solid fa-file-lines</code>,
+            <code style="color:var(--accent-color);">fa-brands fa-google-drive</code>,
+            <code style="color:var(--accent-color);">fa-solid fa-clipboard-list</code>
+          </p>
+        </div>
+
+        <div class="form-group">
+          <div class="toggle-row">
+            <label class="toggle-item">
+              <input type="checkbox" id="linkEnabled" checked>
+              <label for="linkEnabled">Enabled (visible to visitors)</label>
+            </label>
+            <label class="toggle-item">
+              <input type="checkbox" id="linkShowHome" checked>
+              <label for="linkShowHome">Show on homepage</label>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('linkModal')">Cancel</button>
+        <button class="btn" onclick="saveLink()">
+          <i class="fa-solid fa-floppy-disk"></i> Save Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-trash" style="margin-right:8px;"></i>Delete Link</h3>
+        <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted); line-height:1.6;">
+          Are you sure you want to delete <strong style="color:var(--text-color);" id="deleteLinkName"></strong>?
+        </p>
+        <p style="margin-top:10px; font-size:0.85em; color:var(--text-muted);">This cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">
+          <i class="fa-solid fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" id="linksJson"><%- JSON.stringify(links.reduce((m,l) => { m[l.id] = l; return m; }, {})) %></script>
+  <script>
+    // Link data map (keyed by id) for use by action buttons
+    const linksData = JSON.parse(document.getElementById('linksJson').textContent);
+
+    // Delegated handler for link card action buttons
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const link = linksData[id];
+      if (!link) return;
+      if (action === 'toggle') toggleLink(id);
+      if (action === 'copy')   copyLinkUrl(btn);
+      if (action === 'edit')   editLink(link);
+      if (action === 'delete') deleteLink(id, link.title);
+    });
+
+    // Copy link URL
+    function copyLinkUrl(btn) {
+      const slug = btn.dataset.slug;
+      const url = 'https://link.ucheldrerep.co.uk/' + slug;
+      navigator.clipboard.writeText(url).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'fa-solid fa-check';
+        btn.classList.add('success');
+        setTimeout(() => { icon.className = 'fa-solid fa-copy'; btn.classList.remove('success'); }, 1500);
+      });
+    }
+
+    // Panel switching
+    function showPanel(name, e) {
+      document.querySelectorAll('.admin-nav-item').forEach(el => el.classList.remove('active'));
+      if (e && e.currentTarget) e.currentTarget.classList.add('active');
+
+      const title = document.getElementById('topbarTitle');
+      const addBtn = document.getElementById('addLinkBtn');
+
+      document.getElementById('panelLinks').style.display = name === 'links' ? '' : 'none';
+      document.getElementById('panelSettings').classList.toggle('active', name === 'settings');
+
+      if (name === 'links')    { title.textContent = 'All Links'; addBtn.style.display = 'inline-flex'; }
+      if (name === 'settings') { title.textContent = 'Site Settings'; addBtn.style.display = 'none'; }
+    }
+
+    // Mobile menu
+    function toggleMobileMenu() {
+      document.getElementById('adminSidebar').classList.toggle('mobile-open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    // Alert
+    function showAlert(msg, type = 'success') {
+      const el = document.createElement('div');
+      el.className = 'alert alert-' + type;
+      el.innerHTML = '<i class="fa-solid fa-' + (type === 'success' ? 'circle-check' : 'circle-exclamation') + '" style="margin-right:8px;"></i>' + msg;
+      document.getElementById('alertContainer').appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    // Type help text
+    const typeHelps = {
+      'redirect':           '<strong>Redirect</strong> — visitors are immediately forwarded to the destination URL. Best for most links.',
+      'permanent-redirect': '<strong>Permanent Redirect</strong> — like Redirect but cached by browsers. Best for links that will never change.',
+      'embed':              '<strong>Embed</strong> — the page appears inside an iframe. Works well for Google Forms. Note: some sites block embedding.',
+      'info':               '<strong>Info Page</strong> — shows a branded page with title, description and a "Go to Link" button.'
+    };
+
+    document.getElementById('linkType').addEventListener('change', function() {
+      document.getElementById('typeHelp').innerHTML = typeHelps[this.value] || '';
+    });
+
+    // Google URL detection & param stripping
+    const googleHostRegex = /^(docs|drive|forms|sheets|slides|sites|groups|calendar|meet)\.google\.com/i;
+    const googleParamsToStrip = ['usp', 'ouid', 'urp', 'rtpof', 'sd', 'authuser'];
+    const linkUrlEl = document.getElementById('linkUrl');
+    const googleNotice = document.getElementById('googleNotice');
+    const stripCheckbox = document.getElementById('stripGoogleParams');
+    const strippedPreview = document.getElementById('strippedPreview');
+
+    function isGoogleUrl(urlStr) {
+      try {
+        const u = new URL(urlStr);
+        return googleHostRegex.test(u.hostname) || u.hostname === 'google.com' || u.hostname.endsWith('.google.com');
+      } catch { return false; }
+    }
+
+    function getStrippedUrl(urlStr) {
+      try {
+        const u = new URL(urlStr);
+        const before = u.search;
+        googleParamsToStrip.forEach(p => u.searchParams.delete(p));
+        return { url: u.toString(), changed: u.search !== before };
+      } catch { return { url: urlStr, changed: false }; }
+    }
+
+    function checkGoogleUrl() {
+      const val = linkUrlEl.value.trim();
+      if (isGoogleUrl(val)) {
+        const { url: cleaned, changed } = getStrippedUrl(val);
+        googleNotice.classList.add('visible');
+        if (changed) {
+          strippedPreview.textContent = cleaned;
+          strippedPreview.classList.toggle('visible', stripCheckbox.checked);
+        } else {
+          strippedPreview.classList.remove('visible');
+        }
+      } else {
+        googleNotice.classList.remove('visible');
+      }
+    }
+
+    linkUrlEl.addEventListener('input', checkGoogleUrl);
+    linkUrlEl.addEventListener('change', checkGoogleUrl);
+    stripCheckbox.addEventListener('change', function() {
+      const { url: cleaned, changed } = getStrippedUrl(linkUrlEl.value.trim());
+      strippedPreview.classList.toggle('visible', this.checked && changed);
+    });
+
+    // Icon preview
+    document.getElementById('linkIcon').addEventListener('input', function() {
+      document.getElementById('iconPreview').innerHTML = '<i class="' + this.value + '"></i>';
+    });
+
+    // Auto-slug from title
+    let slugManual = false;
+    document.getElementById('linkSlug').addEventListener('input', () => { slugManual = true; checkSlugAvailability(); });
+    document.getElementById('linkTitle').addEventListener('input', function() {
+      if (!slugManual && !document.getElementById('linkId').value) {
+        document.getElementById('linkSlug').value = this.value
+          .toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+        checkSlugAvailability();
+      }
+    });
+
+    // Slug availability checker
+    let slugCheckTimer = null;
+    const slugStatusEl = document.getElementById('slugStatus');
+    const slugStatusIcon = document.getElementById('slugStatusIcon');
+    const slugStatusText = document.getElementById('slugStatusText');
+
+    function setSlugStatus(state, text) {
+      slugStatusEl.className = 'slug-status visible ' + state;
+      slugStatusIcon.className = state === 'available' ? 'fa-solid fa-circle-check'
+        : state === 'unavailable' ? 'fa-solid fa-circle-xmark'
+        : 'fa-solid fa-spinner fa-spin';
+      slugStatusText.textContent = text;
+    }
+
+    function hideSlugStatus() {
+      slugStatusEl.className = 'slug-status';
+    }
+
+    function checkSlugAvailability() {
+      clearTimeout(slugCheckTimer);
+      const slug = document.getElementById('linkSlug').value.trim().toLowerCase().replace(/[^a-z0-9\-]/g, '');
+      if (!slug) { hideSlugStatus(); return; }
+      setSlugStatus('checking', 'Checking…');
+      slugCheckTimer = setTimeout(async () => {
+        try {
+          const editId = document.getElementById('linkId').value;
+          const qs = editId ? '?slug=' + encodeURIComponent(slug) + '&exclude=' + encodeURIComponent(editId) : '?slug=' + encodeURIComponent(slug);
+          const res = await fetch('/admin/api/links/check-slug' + qs);
+          const data = await res.json();
+          if (data.available) {
+            setSlugStatus('available', 'Available');
+          } else {
+            setSlugStatus('unavailable', 'Unavailable');
+          }
+        } catch {
+          hideSlugStatus();
+        }
+      }, 300);
+    }
+
+    // Modal helpers
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+    });
+
+    // Open create modal
+    function openCreateModal() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus" style="margin-right:8px;"></i>New Link';
+      document.getElementById('linkId').value = '';
+      document.getElementById('linkTitle').value = '';
+      document.getElementById('linkSlug').value = '';
+      document.getElementById('linkUrl').value = '';
+      document.getElementById('linkType').value = 'redirect';
+      document.getElementById('linkDescription').value = '';
+      document.getElementById('linkIcon').value = 'fa-solid fa-link';
+      document.getElementById('iconPreview').innerHTML = '<i class="fa-solid fa-link"></i>';
+      document.getElementById('linkEnabled').checked = true;
+      document.getElementById('linkShowHome').checked = true;
+      document.getElementById('typeHelp').innerHTML = typeHelps['redirect'];
+      stripCheckbox.checked = true;
+      googleNotice.classList.remove('visible');
+      strippedPreview.classList.remove('visible');
+      hideSlugStatus();
+      slugManual = false;
+      openModal('linkModal');
+    }
+
+    // Edit link
+    function editLink(link) {
+      document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen" style="margin-right:8px;"></i>Edit Link';
+      document.getElementById('linkId').value = link.id;
+      document.getElementById('linkTitle').value = link.title;
+      document.getElementById('linkSlug').value = link.slug;
+      document.getElementById('linkUrl').value = link.url;
+      document.getElementById('linkType').value = link.type;
+      document.getElementById('linkDescription').value = link.description || '';
+      document.getElementById('linkIcon').value = link.icon || 'fa-solid fa-link';
+      document.getElementById('iconPreview').innerHTML = '<i class="' + (link.icon || 'fa-solid fa-link') + '"></i>';
+      document.getElementById('linkEnabled').checked = link.enabled;
+      document.getElementById('linkShowHome').checked = link.showOnHomepage !== false;
+      document.getElementById('typeHelp').innerHTML = typeHelps[link.type] || '';
+      stripCheckbox.checked = true;
+      slugManual = true;
+      openModal('linkModal');
+      checkGoogleUrl();
+      checkSlugAvailability();
+    }
+
+    // Save link
+    async function saveLink() {
+      const id = document.getElementById('linkId').value;
+      const data = {
+        title:          document.getElementById('linkTitle').value,
+        slug:           document.getElementById('linkSlug').value,
+        url:            document.getElementById('linkUrl').value,
+        type:           document.getElementById('linkType').value,
+        description:    document.getElementById('linkDescription').value,
+        icon:           document.getElementById('linkIcon').value,
+        enabled:        document.getElementById('linkEnabled').checked,
+        showOnHomepage: document.getElementById('linkShowHome').checked
+      };
+
+      if (!data.title || !data.slug || !data.url) {
+        showAlert('Please fill in all required fields.', 'error'); return;
+      }
+
+      // Strip Google tracking params if checkbox is checked
+      if (stripCheckbox.checked && isGoogleUrl(data.url)) {
+        data.url = getStrippedUrl(data.url).url;
+      }
+
+      try {
+        const res = await fetch(id ? '/admin/api/links/' + id : '/admin/api/links', {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.error) { showAlert(result.error, 'error'); return; }
+        showAlert(id ? 'Link updated successfully.' : 'Link created successfully.');
+        closeModal('linkModal');
+        setTimeout(() => location.reload(), 600);
+      } catch { showAlert('Something went wrong. Please try again.', 'error'); }
+    }
+
+    // Toggle enabled
+    async function toggleLink(id) {
+      try {
+        const res = await fetch('/admin/api/links/' + id + '/toggle', { method: 'PATCH' });
+        const result = await res.json();
+        if (result.error) { showAlert(result.error, 'error'); return; }
+        showAlert(result.enabled ? 'Link enabled.' : 'Link disabled.');
+        setTimeout(() => location.reload(), 600);
+      } catch { showAlert('Something went wrong.', 'error'); }
+    }
+
+    // Delete link
+    let deletingId = null;
+    function deleteLink(id, name) {
+      deletingId = id;
+      document.getElementById('deleteLinkName').textContent = name;
+      openModal('deleteModal');
+    }
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+      if (!deletingId) return;
+      try {
+        const res = await fetch('/admin/api/links/' + deletingId, { method: 'DELETE' });
+        const result = await res.json();
+        if (result.error) { showAlert(result.error, 'error'); return; }
+        showAlert('Link deleted.');
+        closeModal('deleteModal');
+        setTimeout(() => location.reload(), 600);
+      } catch { showAlert('Something went wrong.', 'error'); }
+    });
+
+    // Save settings
+    async function saveSettings() {
+      const data = {
+        siteName:        document.getElementById('settingSiteName').value,
+        siteDescription: document.getElementById('settingDescription').value,
+        brandColour:     document.getElementById('settingColourText').value
+      };
+      try {
+        const res = await fetch('/admin/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.error) { showAlert(result.error, 'error'); return; }
+        showAlert('Settings saved!');
+        setTimeout(() => location.reload(), 800);
+      } catch { showAlert('Something went wrong.', 'error'); }
+    }
+
+    document.getElementById('settingColour').addEventListener('input', function() {
+      document.getElementById('settingColourText').value = this.value;
+    });
+    document.getElementById('settingColourText').addEventListener('input', function() {
+      document.getElementById('settingColour').value = this.value;
+    });
+
+    // Search & filter
+    function filterLinks() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const type   = document.getElementById('filterType').value;
+      const cards  = document.querySelectorAll('.link-card');
+      let visible  = 0;
+
+      cards.forEach(card => {
+        const matchS = !search || card.dataset.title.includes(search) || card.dataset.slug.includes(search) || card.dataset.url.includes(search);
+        const matchT = !type || card.dataset.type === type;
+        card.style.display = (matchS && matchT) ? '' : 'none';
+        if (matchS && matchT) visible++;
+      });
+
+      document.getElementById('noResults').style.display = (visible === 0 && cards.length > 0) ? 'block' : 'none';
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterLinks);
+    document.getElementById('filterType').addEventListener('change', filterLinks);
+  </script>
+</body>
+</html>

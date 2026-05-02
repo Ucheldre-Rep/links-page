@@ -1,0 +1,47 @@
+[
+  {
+    "id": "e2eef14f-bb5d-4647-80ed-6541584883c4",
+    "slug": "home",
+    "title": "Home Page (Beta Page)",
+    "description": "",
+    "type": "permanent-redirect",
+    "url": "https://beta.ucheldrerep.co.uk",
+    "icon": "fa-solid fa-link",
+    "enabled": true,
+    "showOnHomepage": true,
+    "clicks": 5,
+    "sortOrder": 0,
+    "createdAt": "2026-03-05T22:30:53.210Z",
+    "updatedAt": "2026-03-06T01:03:44.507Z"
+  },
+  {
+    "id": "2d7966ab-9d9c-4ed1-9938-aee08e769090",
+    "slug": "member-agreement-2026",
+    "title": "Ucheldre Rep 2026 Member Agreement/Code of Conduct",
+    "description": "",
+    "type": "info",
+    "url": "https://forms.gle/qaxedFXtuMLUEn367",
+    "icon": "fa-solid fa-link",
+    "enabled": true,
+    "showOnHomepage": false,
+    "clicks": 25,
+    "sortOrder": 1,
+    "createdAt": "2026-03-05T23:05:31.067Z",
+    "updatedAt": "2026-03-08T19:34:26.648Z"
+  },
+  {
+    "id": "ac58cc06-94fa-4617-8971-b496c747ff88",
+    "slug": "application-for-membership",
+    "title": "Application for membership",
+    "description": "",
+    "type": "info",
+    "url": "https://forms.gle/Fi1fYoU8f3tDC67cA",
+    "icon": "fa-solid fa-link",
+    "enabled": true,
+    "showOnHomepage": false,
+    "clicks": 12,
+    "sortOrder": 2,
+    "createdAt": "2026-03-08T19:36:15.528Z",
+    "updatedAt": "2026-03-08T19:36:15.528Z"
+  }
+]

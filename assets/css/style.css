@@ -1,0 +1,106 @@
+/* ── UcheldreRepLinks Styles ────────────────────────────── */
+
+:root {
+    --brand: #6f42c1;
+    --brand-dark: #5a32a3;
+    --brand-light: #8b5cf6;
+}
+
+/* ── Global ───────────────────────────────────────────── */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn-primary {
+    background-color: var(--brand);
+    border-color: var(--brand);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--brand-dark);
+    border-color: var(--brand-dark);
+}
+.btn-outline-primary {
+    color: var(--brand);
+    border-color: var(--brand);
+}
+.btn-outline-primary:hover {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: white;
+}
+
+/* ── Navbar ───────────────────────────────────────────── */
+.navbar-brand {
+    font-size: 1.1rem;
+}
+.nav-link.active {
+    font-weight: 600;
+}
+
+/* ── Homepage link cards ──────────────────────────────── */
+.link-home-card {
+    transition: all 0.25s ease;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.link-home-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+.link-home-card:hover i {
+    transform: scale(1.1);
+    transition: transform 0.25s ease;
+}
+
+/* ── Form controls ────────────────────────────────────── */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.2);
+}
+.form-check-input:checked {
+    background-color: var(--brand);
+    border-color: var(--brand);
+}
+
+/* ── Badge tweaks ─────────────────────────────────────── */
+.badge {
+    font-weight: 500;
+}
+
+/* ── Slug display ─────────────────────────────────────── */
+.slug-display {
+    user-select: all;
+}
+
+/* ── Scrollbar (Webkit) ───────────────────────────────── */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #c4c4c4;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* ── Responsive tweaks ────────────────────────────────── */
+@media (max-width: 576px) {
+    .link-card .card-body {
+        padding: 0.75rem !important;
+    }
+    .icon-preview {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+    .slug-display {
+        font-size: 0.75rem;
+    }
+}

@@ -1,0 +1,87 @@
+<style>
+  .site-navbar {
+    background: var(--bg-color-medium);
+    border-bottom: 1px solid var(--zero-two-fade);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  }
+
+  .site-navbar-brand {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition: color 0.2s;
+  }
+
+  .site-navbar-brand:hover { color: var(--accent-hover-color); }
+
+  .site-navbar-links { display: flex; align-items: center; gap: 6px; }
+
+  .site-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+  }
+
+  .site-nav-link:hover, .site-nav-link.active {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-color);
+  }
+
+  .site-nav-link.logout {
+    border: 1px solid rgba(139,47,57,0.4);
+    color: var(--text-muted);
+  }
+
+  .site-nav-link.logout:hover {
+    background: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    color: white;
+  }
+
+  @media (max-width: 600px) {
+    .site-navbar { padding: 0 18px; }
+    .site-nav-link span { display: none; }
+  }
+</style>
+
+<nav class="site-navbar">
+  <span class="site-navbar-brand">
+    <i class="fa-solid fa-link"></i><%= settings.siteName %>
+  </span>
+  <div class="site-navbar-links">
+    <% if (isAdmin) { %>
+    <a class="site-nav-link<%= activePage === 'admin' ? ' active' : '' %>" href="/admin">
+      <i class="fa-solid fa-gauge"></i><span>Dashboard</span>
+    </a>
+    <form action="/admin/logout" method="POST" style="margin:0;">
+      <button type="submit" class="site-nav-link logout">
+        <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+      </button>
+    </form>
+    <% } %>
+  </div>
+</nav>

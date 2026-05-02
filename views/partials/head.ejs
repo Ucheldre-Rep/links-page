@@ -1,0 +1,37 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %> — <%= settings.siteName %></title>
+<meta name="description" content="<%= settings.siteDescription %>">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Lato:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+<style>
+  :root {
+    --brand: <%= settings.brandColour || '#d4af37' %>;
+    --bg-color-darker: #0a0a0f;
+    --bg-color-dark: #111118;
+    --bg-color-medium: #1a1a24;
+    --bg-color-light: #252530;
+    --text-color: #e8e6e3;
+    --text-muted: #a8a6a3;
+    --accent-color: #d4af37;
+    --accent-hover-color: #f0c86e;
+    --accent-secondary: #8b2f39;
+    --zero-two-fade: rgba(255,255,255,0.1);
+    --spotlight-color: rgba(212,175,55,0.12);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--bg-color-dark);
+    color: var(--text-color);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a { color: var(--accent-color); text-decoration: none; }
+  a:hover { color: var(--accent-hover-color); }
+</style>
